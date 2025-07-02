@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <style>
+        .container{
+            background-color:#ffffff;
+            width: auto;
+            margin: auto;
+        }
+        .chart-container {
+            margin-top: 20px;
+        }
+    </style>
+    <title>Custom gr</title>
+</head>
+<body>
+    <h2>
+        <center>BIỂU ĐỒ</center>
+    </h2>
+    <div class="container">
+        <canvas id="myChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="myThirdChart"></canvas> <!-- Thêm một canvas mới -->
+    </div>
+    <div class="chart-container">
+        <canvas id="mySecondChart"></canvas>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var chart1;
+            var chart2;
+            var chart3;
+            function getData() {
+                var url = "https://api.thingspeak.com/channels/2262643/fields/1,2,3,4,5,6,7,8.json?api_key=U48YD4SEQ1K6WJ48&results=30";
+                $.getJSON(url, function(data) {
+                    var field1Values = [];
+                    var field2Values = [];
+                    var field3Values = [];
+                    var field4Values = []; // New data
+                    var field5Values = [];
+                    var field6Values = [];
+                    var field7Values = [];
+                    var field8Values = []; 
+                    var timestamps = [];
+                    var formattedTimestamps = [];
+                    $.each(data.feeds, function(index, feed) {
+                        field1Values.push(feed.field1);
+                        field2Values.push(feed.field2);
+                        field3Values.push(feed.field3); // New data
+                        field4Values.push(feed.field4);
+                        field5Values.push(feed.field5);
+                        field6Values.push(feed.field6);
+                        field7Values.push(feed.field7); 
+                        field8Values.push(feed.field8);
+                       
+                        timestamps.push(feed.created_at);
+                        formattedTimestamps.push(moment(feed.created_at).format("HH:mm"));
+                    });
+
+                    // Check if charts exist, if not, create them
+                    if (!chart1) {
+                        var ctx1 = document.getElementById('myChart').getContext('2d');
+                        chart1 = new Chart(ctx1, {
+                            type: 'line',
+                            data: {
+                                labels: formattedTimestamps,
+                                datasets: [{
+                                        label: 'Nhiệt độ không khí 1',
+                                        data: field1Values,
+                                        borderColor: '#0000FF',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointStyle: 'star'
+                                    },
+                                    {
+                                        label: 'Nhiệt độ không khí 2',
+                                        data: field2Values,
+                                        borderColor: '#FF3300',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointStyle: 'star'
+                                    }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            maxRotation: 30,
+                                            fontSize: 10,
+                                            autoSkip: true
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontSize: 11,
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        title: function(tooltipItem, data) {
+                                            return moment(timestamps[tooltipItem[0].index]).format('YYYY-MM-DD HH:mm:ss');
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    labels: {
+                                        fontSize: 10
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        // Update chart data
+                        chart1.data.labels = formattedTimestamps;
+                        chart1.data.datasets[0].data = field1Values;
+                        chart1.data.datasets[1].data = field2Values;
+                        chart1.update();
+                    }
+                    // Check if charts exist, if not, create them
+
+                  // Check if charts exist, if not, create them
+                  if (!chart3) {
+                        var ctx3 = document.getElementById('myThirdChart').getContext('2d');
+                        chart3 = new Chart(ctx3, {
+                            type: 'line',
+                            data: {
+                                labels: formattedTimestamps,
+                                datasets: [{
+                                    label: 'độ  ẩm không khí 1',
+                                    data: field3Values,
+                                    borderColor: '#008000',
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    pointStyle: 'star'
+                                },
+                                {
+                                    label: 'độ  ẩm không khí 2',
+                                    data: field4Values,
+                                    borderColor: '#FF3300',
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    pointStyle: 'star'
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            maxRotation: 30,
+                                            fontSize: 10,
+                                            autoSkip: true
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontSize: 11,
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        title: function(tooltipItem, data) {
+                                            return moment(timestamps[tooltipItem[0].index]).format('YYYY-MM-DD HH:mm:ss');
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    labels: {
+                                        fontSize: 10
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        // Update chart3
+                        chart3.data.labels = formattedTimestamps;
+                        chart3.data.datasets[0].data = field3Values;
+                        chart3.data.datasets[1].data = field4Values;
+                        chart3.update();
+                    }
+
+                    if (!chart2) {
+                        var ctx2 = document.getElementById('mySecondChart').getContext('2d');
+                        chart2 = new Chart(ctx2, {
+                            type: 'line',
+                            data: {
+                                labels: formattedTimestamps,
+                                datasets: [{
+                                    label: 'độ ẩm đất 1',
+                                    data: field3Values,
+                                    borderColor: '#008000',
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    pointStyle: 'star'
+                                },
+                                {
+                                    label: 'độ ẩm đất 2',
+                                    data: field3Values,
+                                    borderColor: '#FF3300',
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    pointStyle: 'star'
+                                },
+                                {
+                                        label: 'độ ẩm đất 3',
+                                        data: field1Values,
+                                        borderColor: '#0000FF',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointStyle: 'star'
+                                    },
+                                    {
+                                        label: 'độ ẩm đất 4',
+                                        data: field2Values,
+                                        borderColor: '#000000',
+                                        borderWidth: 2,
+                                        pointRadius: 3,
+                                        pointStyle: 'star'
+                                    }
+                            ]
+                            },
+                            options: {
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            maxRotation: 30,
+                                            fontSize: 10,
+                                            autoSkip: true
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontSize: 11,
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        title: function(tooltipItem, data) {
+                                            return moment(timestamps[tooltipItem[0].index]).format('YYYY-MM-DD HH:mm:ss');
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    labels: {
+                                        fontSize: 10
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        // Update chart data
+                        chart2.data.labels = formattedTimestamps;
+                        chart2.data.datasets[0].data = field5Values;
+                        chart2.data.datasets[1].data = field6Values;
+                        chart2.data.datasets[2].data = field7Values;
+                        chart2.data.datasets[3].data = field8Values;
+                        chart2.update();
+                    }
+                });
+            }
+            // Update data every second
+            setInterval(getData, 7000);
+        });
+    </script>
+</body>
+</html>
